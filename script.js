@@ -116,4 +116,147 @@ window.addEventListener("click", e => {
 async function sha256Hex(str) {
     const enc = new TextEncoder();
     const digest = await crypto.subtle.digest("SHA-256", enc.encode(str));
-    return Array.from(new Uint8Array(digest)).map(b => b.to
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+validateLogin.onclick = async () => {
+    const input = passwordInput.value || "";
+    const hash = await sha256Hex(input);
+    if (hash === STORED_PWD_HASH) {
+        isLoggedIn = true;
+        sessionStorage.setItem(STORAGE_KEYS.LOGGED, "1");
+        loginModal.style.display = "none";
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        enableEditing(true);
+        renderMessages();
+        toast("Connexion réussie", "success");
+    } else {
+        loginError.textContent = "Mot de passe incorrect.";
+        toast("Échec de la connexion", "error");
+    }
+};
+
+logoutBtn.onclick = () => {
+    isLoggedIn = false;
+    sessionStorage.removeItem(STORAGE_KEYS.LOGGED);
+    enableEditing(false);
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+    renderMessages();
+    toast("Déconnecté", "success");
+};
+
+// --- LIENS ---
+function loadLinks() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
+    linksContainer.innerHTML = "";
+    saved.forEach((l, i) => {
+        const card = document.createElement("div");
+        card.className = "doc-card";
+        card.textContent = l.name;
+        card.onclick = () => window.open(l.link, "_blank");
+        if (isLoggedIn) {
+            const del = document.createElement("button");
+            del.textContent = "X";
+            del.className = "delete-btn";
+            del.onclick = e => {
+                e.stopPropagation();
+                if (confirm("Supprimer ce lien ?")) {
+                    saved.splice(i, 1);
+                    localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(saved));
+                    loadLinks();
+                }
+            };
+            card.appendChild(del);
+        }
+        linksContainer.appendChild(card);
+    });
+}
+loadLinks();
+
+addLinkBtn && (addLinkBtn.onclick = () => {
+    const name = prompt("Nom du lien :");
+    const link = prompt("URL :");
+    if (name && link) {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
+        saved.push({ name, link });
+        localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(saved));
+        loadLinks();
+    }
+});
+
+// --- Chat ---
+const chatMessagesKey = "divsic_chat_messages";
+const sendMessageBtn = document.getElementById("sendMessageBtn");
+const chatInput = document.getElementById("chat-message");
+const chatName = document.getElementById("chat-name");
+const onlineCount = document.getElementById("onlineCount");
+
+function renderMessages() {
+    const messages = JSON.parse(localStorage.getItem(chatMessagesKey)) || [];
+    chatBox.innerHTML = "";
+    messages.forEach((m, i) => {
+        const msg = document.createElement("div");
+        msg.className = "chat-msg";
+        msg.innerHTML = `<strong>${m.name}</strong> <span style="color:var(--muted);font-size:12px">(${m.time})</span><br>${m.text}`;
+        if (isLoggedIn) {
+            const del = document.createElement("button");
+            del.textContent = "🗑️";
+            del.className = "btn danger";
+            del.style = "margin-top:4px;padding:2px 6px;font-size:12px;";
+            del.onclick = () => {
+                if (confirm("Supprimer ce message ?")) {
+                    messages.splice(i, 1);
+                    localStorage.setItem(chatMessagesKey, JSON.stringify(messages));
+                    renderMessages();
+                    toast("Message supprimé", "success");
+                }
+            };
+            msg.appendChild(del);
+        }
+        chatBox.appendChild(msg);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+renderMessages();
+
+sendMessageBtn.addEventListener("click", () => {
+    const name = chatName.value.trim() || "Anonyme";
+    const text = chatInput.value.trim();
+    if (!text) return;
+    const time = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const messages = JSON.parse(localStorage.getItem(chatMessagesKey)) || [];
+    messages.push({ name, text, time });
+    localStorage.setItem(chatMessagesKey, JSON.stringify(messages));
+    chatInput.value = "";
+    renderMessages();
+});
+
+window.addEventListener("storage", e => {
+    if (e.key === chatMessagesKey) renderMessages();
+});
+
+// --- Online counter ---
+let userCount = parseInt(localStorage.getItem("divsic_chat_online") || "0");
+userCount++;
+localStorage.setItem("divsic_chat_online", userCount);
+onlineCount.textContent = userCount;
+window.addEventListener("beforeunload", () => {
+    let count = parseInt(localStorage.getItem("divsic_chat_online") || "1");
+    count = Math.max(0, count - 1);
+    localStorage.setItem("divsic_chat_online", count);
+});
+window.addEventListener("storage", e => {
+    if (e.key === "divsic_chat_online") onlineCount.textContent = e.newValue || "0";
+});
+
+// --- Utility ---
+function enableEditing(enable) {
+    addDocBtn && (addDocBtn.style.display = enable ? "inline-block" : "none");
+    addPhotoBtn && (addPhotoBtn.style.display = enable ? "inline-block" : "none");
+    addLinkBtn && (addLinkBtn.style.display = enable ? "inline-block" : "none");
+    loadLinks();
+}
+
+discoverBtn && (discoverBtn.onclick = () => toast("Utilise la navigation pour découvrir le contenu", "info"));
