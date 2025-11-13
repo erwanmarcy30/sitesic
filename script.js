@@ -45,22 +45,8 @@ const sendMessageBtn = document.getElementById("sendMessageBtn");
 const chatInput = document.getElementById("chat-message");
 const chatName = document.getElementById("chat-name");
 const onlineCount = document.getElementById("onlineCount");
-const toastContainer = document.getElementById("toastContainer");
 
 let isLoggedIn = false;
-
-// --- Toast utility ---
-function toast(message, type = "info", timeout = 3500) {
-    const t = document.createElement("div");
-    t.className = `toast ${type === "success" ? "success" : type === "error" ? "error" : ""}`;
-    t.textContent = message;
-    toastContainer.appendChild(t);
-    setTimeout(() => t.classList.add("visible"), 50);
-    setTimeout(() => {
-        t.classList.remove("visible");
-        t.addEventListener("transitionend", () => t.remove(), { once: true });
-    }, timeout);
-}
 
 // --- Navigation ---
 document.querySelectorAll(".nav-link").forEach(link => {
@@ -96,7 +82,6 @@ loadTheme();
 themeToggle.onclick = () => {
     document.body.classList.toggle("dark");
     localStorage.setItem(STORAGE_KEYS.THEME, document.body.classList.contains("dark") ? "dark" : "light");
-    toast(`Thème ${document.body.classList.contains("dark") ? "sombre" : "clair"} activé`, "success");
 };
 
 // --- Authentification ---
@@ -134,10 +119,8 @@ validateLogin.onclick = async () => {
         logoutBtn.style.display = "inline-block";
         enableEditing(true);
         renderMessages();
-        toast("Connexion réussie", "success");
     } else {
         loginError.textContent = "Mot de passe incorrect.";
-        toast("Échec de la connexion", "error");
     }
 };
 
@@ -148,7 +131,6 @@ logoutBtn.onclick = () => {
     loginBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
     renderMessages();
-    toast("Déconnecté", "success");
 };
 
 // --- Accueil ---
@@ -166,7 +148,6 @@ imageUpload && imageUpload.addEventListener("change", e => {
     reader.onload = ev => {
         localStorage.setItem(STORAGE_KEYS.ACCUEIL_IMAGE, ev.target.result);
         displayImage();
-        toast("Image d'accueil enregistrée", "success");
     };
     reader.readAsDataURL(file);
 });
@@ -183,7 +164,6 @@ deleteImgBtn && (deleteImgBtn.onclick = () => {
     if (confirm("Supprimer cette image ?")) {
         localStorage.removeItem(STORAGE_KEYS.ACCUEIL_IMAGE);
         displayImage();
-        toast("Image supprimée", "success");
     }
 });
 
@@ -223,7 +203,6 @@ function loadDocs() {
                     saved.splice(i,1);
                     localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(saved));
                     loadDocs();
-                    toast("Documentation supprimée", "success");
                 }
             };
             card.appendChild(del);
@@ -241,7 +220,6 @@ addDocBtn && (addDocBtn.onclick = () => {
         saved.push({ name, link });
         localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(saved));
         loadDocs();
-        toast("Documentation ajoutée", "success");
     }
 });
 
@@ -264,7 +242,6 @@ function loadLinks() {
                     savedLinks.splice(i, 1);
                     localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(savedLinks));
                     loadLinks();
-                    toast("Lien supprimé", "success");
                 }
             };
             card.appendChild(del);
@@ -282,7 +259,6 @@ addLinkBtn && (addLinkBtn.onclick = () => {
         savedLinks.push({ name, link });
         localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(savedLinks));
         loadLinks();
-        toast("Lien ajouté", "success");
     }
 });
 
@@ -308,7 +284,6 @@ function loadPhotos() {
                 photos.splice(index, 1);
                 localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
                 loadPhotos();
-                toast("Photo supprimée", "success");
             }
         };
         div.appendChild(img);
@@ -328,7 +303,6 @@ photoUpload && photoUpload.addEventListener("change", e => {
         photos.push(ev.target.result);
         localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
         loadPhotos();
-        toast("Photo ajoutée", "success");
     };
     reader.readAsDataURL(file);
 });
@@ -357,7 +331,6 @@ function renderMessages() {
                     messages.splice(i, 1);
                     localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(messages));
                     renderMessages();
-                    toast("Message supprimé", "success");
                 }
             };
             msgDiv.appendChild(del);
