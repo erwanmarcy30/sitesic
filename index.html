@@ -4,98 +4,78 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Division SIC</title>
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="site-header" id="siteHeader">
+    <header class="site-header">
         <div class="header-left">
-            <button id="mobileMenuBtn" class="burger" aria-label="Ouvrir le menu">
-                <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="22" height="2" rx="1" fill="currentColor"/><rect y="7" width="22" height="2" rx="1" fill="currentColor"/><rect y="14" width="22" height="2" rx="1" fill="currentColor"/></svg>
-            </button>
             <div class="logo">Division <span class="logo-strong">SIC</span></div>
-            <nav class="main-nav" id="mainNav">
+            <nav>
                 <ul>
                     <li><a href="#" class="nav-link active" data-page="accueil">Accueil</a></li>
                     <li><a href="#" class="nav-link" data-page="documentations">Documentations</a></li>
                     <li><a href="#" class="nav-link" data-page="rth">RTH</a></li>
                     <li><a href="#" class="nav-link" data-page="photos">Photos</a></li>
-                    <li><a href="#" class="nav-link" data-page="communication" id="comm-link">
-                        Communication <span id="notifDot" class="notif-dot"></span>
-                    </a></li>
+                    <li><a href="#" class="nav-link" data-page="communication">Communication <span id="notifDot" class="notif-dot" title="Nouveaux messages"></span></a></li>
                     <li><a href="#" class="nav-link" data-page="liens">Liens utiles</a></li>
                 </ul>
             </nav>
         </div>
 
         <div class="header-right">
-            <div id="dateTimeContainer"><span id="dateTime"></span></div>
-            <div class="auth-buttons">
-                <button id="loginBtn" class="btn pill">Connexion</button>
-                <button id="logoutBtn" class="btn pill" style="display:none;">Déconnexion</button>
-            </div>
-            <button id="themeToggle" class="btn icon-btn" title="Changer le thème">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+            <div id="dateTime"></div>
+            <button id="themeToggle" class="btn icon-btn" title="Changer le thème">🌓</button>
+            <button id="loginBtn" class="btn">Connexion</button>
+            <button id="logoutBtn" class="btn" style="display:none;">Déconnexion</button>
         </div>
     </header>
 
-    <aside id="mobileNav" class="mobile-nav">
-        <nav>
-            <ul>
-                <li><a href="#" class="nav-link active" data-page="accueil">Accueil</a></li>
-                <li><a href="#" class="nav-link" data-page="documentations">Documentations</a></li>
-                <li><a href="#" class="nav-link" data-page="rth">RTH</a></li>
-                <li><a href="#" class="nav-link" data-page="photos">Photos</a></li>
-                <li><a href="#" class="nav-link" data-page="communication">Communication</a></li>
-                <li><a href="#" class="nav-link" data-page="liens">Liens utiles</a></li>
-            </ul>
-        </nav>
-    </aside>
-
     <main>
-        <section id="accueil" class="page active hero">
-            <div class="hero-inner card">
-                <div class="hero-text">
-                    <h1>Bienvenue sur la plateforme de la <span class="logo-strong">Division SIC</span></h1>
-                    <p class="subtitle">Ressources, documentations et outils pour vos missions.</p>
-                    <div class="hero-cts">
-                        <button id="discoverBtn" class="btn primary">Découvrir</button>
-                        <button id="contactQuick" class="btn outline">Contact rapide</button>
+        <!-- ACCUEIL -->
+        <section id="accueil" class="page active">
+            <div class="accueil-container card">
+                <h2>Bienvenue sur le site de la Division SIC</h2>
+
+                <div id="accueil-text" class="editable" contenteditable="false">
+                    Bienvenue sur le site le plus utile pour vos missions !
+                </div>
+
+                <div id="imageContainer">
+                    <img id="accueilImage" src="" alt="Image d'accueil" style="display:none;">
+                    <input type="file" id="imageUpload" accept="image/*" style="display:none;">
+                    <div id="imageButtons">
+                        <button id="uploadBtn" style="display:none;">📤 Téléverser une image</button>
+                        <button id="deleteImgBtn" style="display:none; background:#cc0000;">🗑️ Supprimer l'image</button>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- DOCUMENTATIONS -->
         <section id="documentations" class="page">
             <h2>Documentations</h2>
-            <div id="docs-container" class="grid-cards">
-                <div class="doc-card"><span class="card-icon">📄</span><span>GE 45kW AG</span></div>
-                <div class="doc-card"><span class="card-icon">📄</span><span>GE 45kW NG</span></div>
-                <div class="doc-card"><span class="card-icon">📄</span><span>KERAX 8x4</span></div>
-                <div class="doc-card"><span class="card-icon">📄</span><span>KERAX 6x6</span></div>
-                <div class="doc-card"><span class="card-icon">📄</span><span>SHERPA</span></div>
-            </div>
-            <button id="addDocBtn" style="display:none;" class="btn modern">+ Ajouter une documentation</button>
+            <div id="docs-container" class="grid-cards"></div>
+            <button id="addDocBtn" style="display:none;" class="btn">+ Ajouter une documentation</button>
         </section>
 
+        <!-- RTH -->
         <section id="rth" class="page">
             <h2>RTH</h2>
             <p>Contenu à venir...</p>
         </section>
 
+        <!-- PHOTOS -->
         <section id="photos" class="page">
             <h2>Galerie Photos</h2>
-            <div id="photosContainer" class="grid-photos"></div>
+            <div id="photosContainer"></div>
             <input type="file" id="photoUpload" accept="image/*" style="display:none;">
-            <button id="addPhotoBtn" style="display:none;" class="btn modern">+ Ajouter une photo</button>
+            <button id="addPhotoBtn" style="display:none;" class="btn">+ Ajouter une photo</button>
         </section>
 
+        <!-- COMMUNICATION -->
         <section id="communication" class="page">
-            <h2>Communication - Chat en temps réel</h2>
-            <div id="chat-status" class="card">
+            <h2>Communication - Chat local</h2>
+            <div id="chat-status">
                 <span id="onlineCount">0</span> utilisateur(s) en ligne
             </div>
             <div id="chat-box" class="chat-box card"></div>
@@ -106,24 +86,24 @@
             </div>
         </section>
 
+        <!-- LIENS UTILES -->
         <section id="liens" class="page">
             <h2>Liens utiles</h2>
             <div id="links-container" class="grid-cards"></div>
-            <button id="addLinkBtn" style="display:none;" class="btn modern">+ Ajouter un lien utile</button>
+            <button id="addLinkBtn" style="display:none;" class="btn">+ Ajouter un lien utile</button>
         </section>
     </main>
 
     <footer>
-        <div class="footer-inner">
-            <p>© 2025 Division SIC — SERGENT MARCY</p>
-        </div>
+        <p>© 2025 Division SIC — SERGENT MARCY</p>
     </footer>
 
+    <!-- MODALES -->
     <div id="loginModal" class="modal">
         <div class="modal-content card">
             <h3>Connexion</h3>
-            <input type="password" id="passwordInput" placeholder="Mot de passe">
-            <div class="modal-actions">
+            <input type="password" id="passwordInput" placeholder="Mot de passe" />
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
                 <button id="validateLogin" class="btn">Se connecter</button>
                 <button id="cancelLogin" class="btn outline">Annuler</button>
             </div>
@@ -131,13 +111,13 @@
         </div>
     </div>
 
-    <div id="photoModal" class="modal photo-modal">
+    <div id="photoModal" class="modal" style="align-items:center;justify-content:center;">
         <span id="closePhotoModal" class="close-modal">&times;</span>
         <img id="photoModalImg" class="modal-photo-content" alt="Photo">
     </div>
 
     <div id="toastContainer"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
-
