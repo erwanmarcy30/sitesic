@@ -1,10 +1,14 @@
 // --- Constants & keys ---
 const STORAGE_KEYS = {
     ACCUEIL_TEXT: "accueilText",
+    ACCUEIL_IMAGE: "accueilImage",
     PHOTOS: "photosGallery",
     LINKS: "usefulLinks",
+    DOCS: "docsList",
+    CHAT: "divsic_chat_messages",
     LOGGED: "divsic_logged",
-    THEME: "divsic_theme"
+    THEME: "divsic_theme",
+    CHAT_ONLINE: "divsic_chat_online"
 };
 
 // --- Password hash (SHA-256 of "DIVSIC2025") ---
@@ -21,6 +25,11 @@ const cancelLogin = document.getElementById("cancelLogin");
 const passwordInput = document.getElementById("passwordInput");
 const loginError = document.getElementById("loginError");
 const themeToggle = document.getElementById("themeToggle");
+const accueilText = document.getElementById("accueil-text");
+const uploadBtn = document.getElementById("uploadBtn");
+const deleteImgBtn = document.getElementById("deleteImgBtn");
+const imageUpload = document.getElementById("imageUpload");
+const accueilImage = document.getElementById("accueilImage");
 const addDocBtn = document.getElementById("addDocBtn");
 const docsContainer = document.getElementById("docs-container");
 const addLinkBtn = document.getElementById("addLinkBtn");
@@ -28,20 +37,22 @@ const linksContainer = document.getElementById("links-container");
 const photosContainer = document.getElementById("photosContainer");
 const addPhotoBtn = document.getElementById("addPhotoBtn");
 const photoUpload = document.getElementById("photoUpload");
+const photoModal = document.getElementById("photoModal");
+const photoModalImg = document.getElementById("photoModalImg");
+const closePhotoModal = document.getElementById("closePhotoModal");
 const chatBox = document.getElementById("chat-box");
-const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-const mobileNav = document.getElementById("mobileNav");
-const siteHeader = document.getElementById("siteHeader");
+const sendMessageBtn = document.getElementById("sendMessageBtn");
+const chatInput = document.getElementById("chat-message");
+const chatName = document.getElementById("chat-name");
+const onlineCount = document.getElementById("onlineCount");
 const toastContainer = document.getElementById("toastContainer");
-const discoverBtn = document.getElementById("discoverBtn");
 
-// auth state
 let isLoggedIn = false;
 
-// --- Toast ---
+// --- Toast utility ---
 function toast(message, type = "info", timeout = 3500) {
     const t = document.createElement("div");
-    t.className = `toast ${type}`;
+    t.className = `toast ${type === "success" ? "success" : type === "error" ? "error" : ""}`;
     t.textContent = message;
     toastContainer.appendChild(t);
     setTimeout(() => t.classList.add("visible"), 50);
@@ -58,27 +69,20 @@ document.querySelectorAll(".nav-link").forEach(link => {
         document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
         document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
         link.classList.add("active");
-        const page = document.getElementById(link.getAttribute("data-page"));
+        const pageId = link.getAttribute("data-page");
+        const page = document.getElementById(pageId);
         if (page) page.classList.add("active");
-        if (link.getAttribute("data-page") === "communication") notifDot.style.display = "none";
-        mobileNav.classList.remove("open");
+        if (pageId === "communication") notifDot.style.display = "none";
     });
 });
-
-// --- Mobile menu ---
-mobileMenuBtn.onclick = () => mobileNav.classList.toggle("open");
-document.addEventListener("click", e => {
-    if (!mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target)) mobileNav.classList.remove("open");
-});
-
-// --- Header shrink ---
-window.addEventListener("scroll", () => siteHeader.classList.toggle("scrolled", window.scrollY > 20));
 
 // --- Date & Time ---
 function updateDateTime() {
     const now = new Date();
     const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-    dateTimeElement.textContent = `${now.toLocaleDateString("fr-FR", options)} — ${now.toLocaleTimeString("fr-FR")}`;
+    const date = now.toLocaleDateString("fr-FR", options);
+    const time = now.toLocaleTimeString("fr-FR");
+    dateTimeElement.textContent = `${date} — ${time}`;
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
@@ -95,7 +99,7 @@ themeToggle.onclick = () => {
     toast(`Thème ${document.body.classList.contains("dark") ? "sombre" : "clair"} activé`, "success");
 };
 
-// --- Auth ---
+// --- Authentification ---
 if (sessionStorage.getItem(STORAGE_KEYS.LOGGED) === "1") {
     isLoggedIn = true;
     loginBtn.style.display = "none";
@@ -147,11 +151,105 @@ logoutBtn.onclick = () => {
     toast("Déconnecté", "success");
 };
 
+// --- Accueil ---
+function loadAccueilText() {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACCUEIL_TEXT);
+    if (saved && accueilText) accueilText.textContent = saved;
+}
+loadAccueilText();
+
+uploadBtn && (uploadBtn.onclick = () => imageUpload.click());
+imageUpload && imageUpload.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        localStorage.setItem(STORAGE_KEYS.ACCUEIL_IMAGE, ev.target.result);
+        displayImage();
+        toast("Image d'accueil enregistrée", "success");
+    };
+    reader.readAsDataURL(file);
+});
+function displayImage() {
+    const imgData = localStorage.getItem(STORAGE_KEYS.ACCUEIL_IMAGE);
+    if (imgData && accueilImage) {
+        accueilImage.src = imgData;
+        accueilImage.style.display = "block";
+    } else if (accueilImage) accueilImage.style.display = "none";
+}
+displayImage();
+
+deleteImgBtn && (deleteImgBtn.onclick = () => {
+    if (confirm("Supprimer cette image ?")) {
+        localStorage.removeItem(STORAGE_KEYS.ACCUEIL_IMAGE);
+        displayImage();
+        toast("Image supprimée", "success");
+    }
+});
+
+if (accueilText) {
+    accueilText.addEventListener("input", () => {
+        if (isLoggedIn) localStorage.setItem(STORAGE_KEYS.ACCUEIL_TEXT, accueilText.textContent);
+    });
+}
+
+// --- DOCUMENTS ---
+const defaultDocs = [
+  { name: "GE 45kW AG", link: "https://example.com/GE45AG" },
+  { name: "GE 45kW NG", link: "https://example.com/GE45NG" },
+  { name: "SHERPA", link: "https://example.com/SHERPA" },
+  { name: "KERAX 8x4", link: "https://example.com/KERAX8x4" },
+  { name: "KERAX 6x6", link: "https://example.com/KERAX6x6" }
+];
+if (!localStorage.getItem(STORAGE_KEYS.DOCS)) {
+    localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(defaultDocs));
+}
+
+function loadDocs() {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS)) || [];
+    docsContainer.innerHTML = "";
+    saved.forEach((d, i) => {
+        const card = document.createElement("div");
+        card.className = "doc-card";
+        card.textContent = d.name;
+        card.onclick = () => window.open(d.link, "_blank");
+        if (isLoggedIn) {
+            const del = document.createElement("button");
+            del.textContent = "X";
+            del.className = "delete-btn";
+            del.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm("Supprimer cette documentation ?")) {
+                    saved.splice(i,1);
+                    localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(saved));
+                    loadDocs();
+                    toast("Documentation supprimée", "success");
+                }
+            };
+            card.appendChild(del);
+        }
+        docsContainer.appendChild(card);
+    });
+}
+loadDocs();
+
+addDocBtn && (addDocBtn.onclick = () => {
+    const name = prompt("Nom de la nouvelle documentation :");
+    const link = prompt("Lien (URL) de la documentation :");
+    if (name && link) {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS)) || [];
+        saved.push({ name, link });
+        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(saved));
+        loadDocs();
+        toast("Documentation ajoutée", "success");
+    }
+});
+
 // --- LIENS ---
 function loadLinks() {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
+    const savedLinks = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
     linksContainer.innerHTML = "";
-    saved.forEach((l, i) => {
+    savedLinks.forEach((l, i) => {
         const card = document.createElement("div");
         card.className = "doc-card";
         card.textContent = l.name;
@@ -160,12 +258,13 @@ function loadLinks() {
             const del = document.createElement("button");
             del.textContent = "X";
             del.className = "delete-btn";
-            del.onclick = e => {
+            del.onclick = (e) => {
                 e.stopPropagation();
                 if (confirm("Supprimer ce lien ?")) {
-                    saved.splice(i, 1);
-                    localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(saved));
+                    savedLinks.splice(i, 1);
+                    localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(savedLinks));
                     loadLinks();
+                    toast("Lien supprimé", "success");
                 }
             };
             card.appendChild(del);
@@ -176,87 +275,159 @@ function loadLinks() {
 loadLinks();
 
 addLinkBtn && (addLinkBtn.onclick = () => {
-    const name = prompt("Nom du lien :");
-    const link = prompt("URL :");
+    const name = prompt("Nom du lien utile :");
+    const link = prompt("URL du lien :");
     if (name && link) {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
-        saved.push({ name, link });
-        localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(saved));
+        const savedLinks = JSON.parse(localStorage.getItem(STORAGE_KEYS.LINKS)) || [];
+        savedLinks.push({ name, link });
+        localStorage.setItem(STORAGE_KEYS.LINKS, JSON.stringify(savedLinks));
         loadLinks();
+        toast("Lien ajouté", "success");
     }
 });
 
-// --- Chat ---
-const chatMessagesKey = "divsic_chat_messages";
-const sendMessageBtn = document.getElementById("sendMessageBtn");
-const chatInput = document.getElementById("chat-message");
-const chatName = document.getElementById("chat-name");
-const onlineCount = document.getElementById("onlineCount");
+// --- PHOTOS ---
+function loadPhotos() {
+    const photos = JSON.parse(localStorage.getItem(STORAGE_KEYS.PHOTOS)) || [];
+    photosContainer.innerHTML = "";
+    photos.forEach((src, index) => {
+        const div = document.createElement("div");
+        div.className = "photo-item";
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = `photo-${index}`;
+        img.onclick = () => {
+            photoModal.style.display = "flex";
+            photoModalImg.src = src;
+        };
+        const del = document.createElement("button");
+        del.textContent = "🗑️";
+        del.className = "photo-delete";
+        del.onclick = () => {
+            if (confirm("Supprimer cette photo ?")) {
+                photos.splice(index, 1);
+                localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+                loadPhotos();
+                toast("Photo supprimée", "success");
+            }
+        };
+        div.appendChild(img);
+        if (isLoggedIn) div.appendChild(del);
+        photosContainer.appendChild(div);
+    });
+}
+loadPhotos();
 
+addPhotoBtn && (addPhotoBtn.onclick = () => photoUpload.click());
+photoUpload && photoUpload.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const photos = JSON.parse(localStorage.getItem(STORAGE_KEYS.PHOTOS)) || [];
+        photos.push(ev.target.result);
+        localStorage.setItem(STORAGE_KEYS.PHOTOS, JSON.stringify(photos));
+        loadPhotos();
+        toast("Photo ajoutée", "success");
+    };
+    reader.readAsDataURL(file);
+});
+
+closePhotoModal && (closePhotoModal.onclick = () => photoModal.style.display = "none");
+window.addEventListener("click", e => {
+    if (e.target === photoModal) photoModal.style.display = "none";
+});
+
+// --- CHAT ---
 function renderMessages() {
-    const messages = JSON.parse(localStorage.getItem(chatMessagesKey)) || [];
+    if (!chatBox) return;
+    const messages = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT)) || [];
     chatBox.innerHTML = "";
     messages.forEach((m, i) => {
-        const msg = document.createElement("div");
-        msg.className = "chat-msg";
-        msg.innerHTML = `<strong>${m.name}</strong> <span style="color:var(--muted);font-size:12px">(${m.time})</span><br>${m.text}`;
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "chat-message";
+        msgDiv.innerHTML = `<strong>${escapeHtml(m.name)}</strong> <span style="color:var(--muted);font-size:12px">(${m.time})</span><br>${escapeHtml(m.text)}`;
         if (isLoggedIn) {
             const del = document.createElement("button");
             del.textContent = "🗑️";
-            del.className = "btn danger";
-            del.style = "margin-top:4px;padding:2px 6px;font-size:12px;";
+            del.className = "delete-btn";
+            del.style.cssText = "margin-top:6px;padding:2px 6px;font-size:12px;";
             del.onclick = () => {
                 if (confirm("Supprimer ce message ?")) {
                     messages.splice(i, 1);
-                    localStorage.setItem(chatMessagesKey, JSON.stringify(messages));
+                    localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(messages));
                     renderMessages();
                     toast("Message supprimé", "success");
                 }
             };
-            msg.appendChild(del);
+            msgDiv.appendChild(del);
         }
-        chatBox.appendChild(msg);
+        chatBox.appendChild(msgDiv);
     });
     chatBox.scrollTop = chatBox.scrollHeight;
 }
-renderMessages();
 
-sendMessageBtn.addEventListener("click", () => {
-    const name = chatName.value.trim() || "Anonyme";
+sendMessageBtn?.addEventListener("click", () => {
+    const name = (chatName.value || "Anonyme").trim();
     const text = chatInput.value.trim();
     if (!text) return;
     const time = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    const messages = JSON.parse(localStorage.getItem(chatMessagesKey)) || [];
+    const messages = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT)) || [];
     messages.push({ name, text, time });
-    localStorage.setItem(chatMessagesKey, JSON.stringify(messages));
+    localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(messages));
+    const activePage = document.querySelector(".page.active");
+    if (!activePage || activePage.id !== "communication") notifDot.style.display = "inline-block";
     chatInput.value = "";
     renderMessages();
+    try { localStorage.setItem(STORAGE_KEYS.CHAT + "_updated_at", Date.now()); } catch(e) {}
 });
 
 window.addEventListener("storage", e => {
-    if (e.key === chatMessagesKey) renderMessages();
+    if (e.key === STORAGE_KEYS.CHAT || e.key === STORAGE_KEYS.CHAT + "_updated_at") renderMessages();
+    if (e.key === STORAGE_KEYS.CHAT_ONLINE) onlineCount.textContent = e.newValue || "0";
 });
 
-// --- Online counter ---
-let userCount = parseInt(localStorage.getItem("divsic_chat_online") || "0");
+let userCount = parseInt(localStorage.getItem(STORAGE_KEYS.CHAT_ONLINE) || "0", 10);
 userCount++;
-localStorage.setItem("divsic_chat_online", userCount);
-onlineCount.textContent = userCount;
+localStorage.setItem(STORAGE_KEYS.CHAT_ONLINE, userCount);
+onlineCount && (onlineCount.textContent = userCount);
 window.addEventListener("beforeunload", () => {
-    let count = parseInt(localStorage.getItem("divsic_chat_online") || "1");
+    let count = parseInt(localStorage.getItem(STORAGE_KEYS.CHAT_ONLINE) || "1", 10);
     count = Math.max(0, count - 1);
-    localStorage.setItem("divsic_chat_online", count);
-});
-window.addEventListener("storage", e => {
-    if (e.key === "divsic_chat_online") onlineCount.textContent = e.newValue || "0";
+    localStorage.setItem(STORAGE_KEYS.CHAT_ONLINE, count);
 });
 
-// --- Utility ---
+renderMessages();
+
+// --- Helpers ---
 function enableEditing(enable) {
+    if (accueilText) accueilText.contentEditable = enable;
     addDocBtn && (addDocBtn.style.display = enable ? "inline-block" : "none");
+    uploadBtn && (uploadBtn.style.display = enable ? "inline-block" : "none");
+    deleteImgBtn && (deleteImgBtn.style.display = enable ? "inline-block" : "none");
     addPhotoBtn && (addPhotoBtn.style.display = enable ? "inline-block" : "none");
     addLinkBtn && (addLinkBtn.style.display = enable ? "inline-block" : "none");
+    loadPhotos();
     loadLinks();
+    loadDocs();
 }
 
-discoverBtn && (discoverBtn.onclick = () => toast("Utilise la navigation pour découvrir le contenu", "info"));
+function escapeHtml(text) {
+    if (!text) return "";
+    return text.replace(/[&<>"'`]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;'
+    })[c]);
+}
+
+enableEditing(isLoggedIn);
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "chat-message") {
+        e.preventDefault();
+        sendMessageBtn.click();
+    }
+    if (e.key === "Escape") {
+        if (loginModal) loginModal.style.display = "none";
+        if (photoModal) photoModal.style.display = "none";
+    }
+});
