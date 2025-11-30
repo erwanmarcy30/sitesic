@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Matériel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="logo">Division SIC</div>
+</header>
+
+<main>
+    <h2 id="title"></h2>
+
+    <div class="grid-cards">
+        <a class="doc-card sublink" id="ftLink" target="_blank">FT</a>
+        <a class="doc-card sublink" id="cmdLink" target="_blank">Commandes</a>
+        <a class="doc-card sublink" id="docLink" target="_blank">Documentations</a>
+    </div>
+</main>
+
+<script>
+    const name = new URLSearchParams(location.search).get("name");
+    document.getElementById("title").textContent = name;
+</script>
+
+</body>
+</html>
