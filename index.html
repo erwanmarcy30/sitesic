@@ -1,179 +1,166 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Division SIC</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
+
 <body>
-    <header class="site-header">
-        <div class="header-left">
-            <div class="logo">Division <span class="logo-strong">SIC</span></div>
-            <nav>
-                <ul>
-                    <li><a href="#" class="nav-link active" data-page="accueil">Accueil</a></li>
-                    <li><a href="#" class="nav-link" data-page="documentations">Documentations</a></li>
-                    <li><a href="#" class="nav-link" data-page="rth">RTH</a></li>
-                    <li><a href="#" class="nav-link" data-page="photos">Photos</a></li>
-                    <li>
-                        <a href="#" class="nav-link" data-page="communication">
-                            Communication
-                            <span id="chatNotifDot" class="notif-dot" title="Nouveaux messages"></span>
-                        </a>
-                    </li>
-                    <li><a href="#" class="nav-link" data-page="liens">Liens utiles</a></li>
-                </ul>
-            </nav>
-        </div>
 
-        <div class="header-right">
-            <div id="dateTime"></div>
-            <button id="themeToggle" class="btn icon-btn" title="Changer le thème" aria-label="Changer le thème">🌓</button>
-            <button id="loginBtn" class="btn">Connexion</button>
-            <button id="logoutBtn" class="btn secondary" style="display:none;">Déconnexion</button>
-        </div>
-    </header>
+<header class="site-header">
+    <div class="header-left">
+        <div class="logo">Division <span class="logo-strong">SIC</span></div>
 
-    <main>
-        <!-- ACCUEIL -->
-        <section id="accueil" class="page active">
-            <h2>Accueil</h2>
-
-
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Message d’accueil</h3>
-                    <p id="accueil-text" contenteditable="false" class="editable-area">
-                        Bienvenue sur l’espace local de la Division SIC.
-                        Connectez-vous pour modifier ce texte et l’adapter à vos besoins.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Image d’accueil</h3>
-                    <div class="accueil-image-wrapper">
-                        <img id="accueilImage" src="" alt="Image d’accueil" class="accueil-image" />
-                    </div>
-                    <div class="btn-row">
-                        <button id="uploadBtn" class="btn" style="display:none;">Changer l’image</button>
-                        <button id="deleteImgBtn" class="btn danger" style="display:none;">Supprimer</button>
-                        <input type="file" id="imageUpload" accept="image/*" style="display:none;">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- DOCUMENTATIONS -->
-        <section id="documentations" class="page">
-            <h2>Documentations</h2>
-
-            <div class="card">
-                <div class="docs-header">
-                    <span>Liste des documentations</span>
-                    <button id="addDocBtn" class="btn" style="display:none;">+ Ajouter une documentation</button>
-                </div>
-                <div id="docs-container" class="grid-cards"></div>
-            </div>
-        </section>
-
-        <!-- RTH -->
-        <section id="rth" class="page">
-            <h2>RTH</h2>
-
-            <div class="card" style="overflow-x:auto;">
-                <div class="rth-header">
-                    <span>Tableau RTH</span>
-                    <div class="rth-controls">
-                        <select id="rthSortSelect">
-                            <option value="desc">Date décroissante</option>
-                            <option value="asc">Date croissante</option>
-                        </select>
-                        <button id="addRthBtn" class="btn" style="display:none;">Ajouter une ligne</button>
-                    </div>
-                </div>
-                <table class="rth-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Matériel</th>
-                            <th>Lieu</th>
-                            <th>Observation</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rthTableBody">
-                        <!-- Rempli dynamiquement par script.js -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- PHOTOS -->
-        <section id="photos" class="page">
-            <h2>Photos</h2>
-
-            <div class="card">
-                <div class="photos-header">
-                    <button id="addPhotoBtn" class="btn" style="display:none;">Ajouter une photo</button>
-                    <input type="file" id="photoUpload" accept="image/*" style="display:none;">
-                </div>
-                <div id="photosContainer" class="photos-grid"></div>
-            </div>
-        </section>
-
-        <!-- COMMUNICATION (CHAT) -->
-        <section id="communication" class="page">
-            <h2>Communication (chat local)</h2>
-
-            <div class="card">
-                <div class="chat-header">
-                    <span>Salon principal</span>
-                    <span class="chat-meta"><span id="onlineCount">1</span> connecté(s)</span>
-                </div>
-                <div id="chatBox" class="chat-box"></div>
-                <div class="chat-input">
-                    <input type="text" id="chat-name" placeholder="Votre nom">
-                    <input type="text" id="chat-message" placeholder="Votre message">
-                    <button id="sendMessageBtn" class="btn">Envoyer</button>
-                    <button id="clearChatBtn" class="btn danger" style="display:none;">Vider le chat</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- LIENS UTILES -->
-        <section id="liens" class="page">
-            <h2>Liens utiles</h2>
-
-            <div class="card">
-                <div class="links-header">
-                    <span>Liste des liens</span>
-                    <button id="addLinkBtn" class="btn" style="display:none;">Ajouter un lien</button>
-                </div>
-                <div id="links-container" class="grid-cards"></div>
-            </div>
-        </section>
-    </main>
-
-    <!-- MODALE CONNEXION -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span id="closeLoginModal" class="close-modal">&times;</span>
-            <h3>Connexion</h3>
-            <p class="muted">Mot de passe requis pour activer les fonctions d’édition.</p>
-            <input type="password" id="passwordInput" placeholder="Mot de passe">
-            <button id="validateLogin" class="btn">Valider</button>
-            <p id="loginError" class="error"></p>
-        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link active" data-page="accueil">Accueil</a></li>
+                <li><a href="#" class="nav-link" data-page="materiels">Matériels</a></li>
+                <li><a href="#" class="nav-link" data-page="rth">RTH</a></li>
+                <li><a href="#" class="nav-link" data-page="photos">Photos</a></li>
+                <li><a href="#" class="nav-link" data-page="liens">Liens utiles</a></li>
+            </ul>
+        </nav>
     </div>
 
-    <!-- MODALE PHOTO -->
-    <div id="photoModal" class="modal photo-modal">
-        <span id="closePhotoModal" class="close-modal" aria-label="Fermer la photo">&times;</span>
-        <img id="photoModalImg" class="modal-photo-content" alt="Photo">
+    <div class="header-right">
+        <div id="dateTime"></div>
+        <button id="themeToggle" class="btn icon-btn">🌓</button>
+        <button id="loginBtn" class="btn">Connexion</button>
+        <button id="logoutBtn" class="btn secondary" style="display:none;">Déconnexion</button>
     </div>
+</header>
 
-    <!-- TOASTS -->
-    <div id="toastContainer"></div>
+<main>
 
-    <script src="script.js"></script>
+<!-- ACCUEIL -->
+<section id="accueil" class="page active">
+    <h2>Accueil</h2>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3>Message d’accueil</h3>
+            <p id="accueilText" contenteditable="false">
+                Bienvenue sur l’espace local de la Division SIC.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Image d’accueil</h3>
+            <img id="accueilImage" class="accueil-image">
+            <div>
+                <button id="uploadBtn" class="btn" style="display:none;">Changer l’image</button>
+                <button id="deleteImgBtn" class="btn danger" style="display:none;">Supprimer</button>
+                <input type="file" id="imageUpload" accept="image/*" hidden>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MATÉRIELS -->
+<section id="materiels" class="page">
+    <h2>Matériels</h2>
+
+    <div class="docs-columns">
+
+        <!-- VÉHICULES -->
+        <div class="docs-colums">
+            <h3>Véhicules</h3>
+            <div class="grid-cards">
+                <div class="doc-card" data-name="SHERPA">SHERPA</div>
+                <div class="doc-card" data-name="CCPTA">CCPTA</div>
+                <div class="doc-card" data-name="KERAX 8x4">KERAX 8x4</div>
+                <div class="doc-card" data-name="KERAX 6x6">KERAX 6x6</div>
+                <div class="doc-card" data-name="K500 GM200-GIRAFFE">K500 GM200-GIRAFFE</div>
+            </div>
+        </div>
+
+        <!-- GE -->
+        <div class="docs-colums">
+            <h3>GE</h3>
+            <div class="grid-cards">
+                <div class="doc-card" data-name="GE 45kW AG">GE 45kW AG</div>
+                <div class="doc-card" data-name="GE 45kW NG">GE 45kW NG</div>
+                <div class="doc-card" data-name="GE 20kW">GE 20kW</div>
+                <div class="doc-card" data-name="GE 30kW SDMO">GE 30kW SDMO</div>
+                <div class="doc-card" data-name="GE 15kW GROEL">GE 15kW GROEL</div>
+                <div class="doc-card" data-name="GE HDTAC">GE HDTAC</div>
+                <div class="doc-card" data-name="GE DIVERS">GE DIVERS</div>
+            </div>
+        </div>
+
+        <!-- REMORQUES -->
+        <div class="docs-colums">
+            <h3>Remorques</h3>
+            <div class="grid-cards">
+                <div class="doc-card" data-name="Remorque ACTM">Remorque ACTM</div>
+                <div class="doc-card" data-name="Rocher 1000L">Rocher 1000L</div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="materielDetail" class="page">
+    
+
+ <button id="backToMateriels" class="btn">⬅ Retour</button>
+
+
+	<h2 id="detailTitle"></h2>
+
+    <div class="grid-cards">
+        <a class="doc-card sublink" id="ftLink" target="_blank">FT</a>
+        <a class="doc-card sublink" id="cmdLink" target="_blank">Commandes</a>
+        <a class="doc-card sublink" id="docLink" target="_blank">Documentations</a>
+    </div>
+</section>
+
+
+
+<!-- RTH -->
+<section id="rth" class="page">
+    <h2>RTH</h2>
+    <table class="rth-table">
+        <thead>
+            <tr><th>Date</th><th>Matériel</th><th>Lieu</th><th>Observation</th></tr>
+        </thead>
+        <tbody id="rthBody"></tbody>
+    </table>
+    <button id="addRth" class="btn" style="display:none;">Ajouter</button>
+</section>
+
+<!-- PHOTOS -->
+<section id="photos" class="page">
+    <h2>Photos</h2>
+    <button id="addPhoto" class="btn" style="display:none;">Ajouter une photo</button>
+    <input type="file" id="photoInput" accept="image/*" hidden>
+    <div id="photoGrid" class="photos-grid"></div>
+</section>
+
+<!-- LIENS UTILES -->
+<section id="liens" class="page">
+    <h2>Liens utiles</h2>
+    <button id="addLink" class="btn" style="display:none;">Ajouter un lien</button>
+    <ul id="linksList"></ul>
+</section>
+
+</main>
+
+<!-- MODALE LOGIN -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span id="closeLogin" class="close">&times;</span>
+        <h3>Connexion</h3>
+        <input type="password" id="passwordInput" placeholder="Mot de passe">
+        <button id="validateLogin" class="btn">Valider</button>
+        <p id="loginError" class="error"></p>
+    </div>
+</div>
+
+<div id="toastContainer"></div>
+
 </body>
 </html>
