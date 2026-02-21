@@ -1,166 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Division SIC</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Escape Birthday</title>
+  <style>
+    :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
+    body { margin:0; background:#0b0f19; color:#e9eefc; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 18px 16px 28px; }
+    .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+            border-radius: 16px; padding: 16px; margin: 12px 0; }
+    h1 { font-size: 22px; margin: 6px 0 10px; }
+    h2 { font-size: 18px; margin: 0 0 8px; }
+    .muted { opacity: .85; font-size: 14px; line-height: 1.45; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    input {
+      flex: 1 1 220px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.25);
+      color:#fff;
+      font-size: 16px;
+      outline: none;
+    }
+    button {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: #4c7dff;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    button.secondary { background: rgba(255,255,255,.08); }
+    .pill {
+      display:inline-block; padding: 6px 10px; border-radius: 999px;
+      background: rgba(76,125,255,.18); border:1px solid rgba(76,125,255,.35);
+      font-size: 13px;
+    }
+    .ok { color: #7CFFB2; }
+    .bad { color: #ff7c7c; }
+    .progress { height:10px; border-radius: 999px; background: rgba(255,255,255,.10); overflow:hidden; }
+    .bar { height:100%; width: 0%; background: #4c7dff; transition: width .35s ease; }
+    #qr { display:flex; justify-content:center; padding: 12px 0 4px; }
+    .footer { text-align:center; opacity:.7; font-size: 12px; margin-top: 12px; }
+    a { color: #a9c1ff; }
+  </style>
 </head>
-
 <body>
-
-<header class="site-header">
-    <div class="header-left">
-        <div class="logo">Division <span class="logo-strong">SIC</span></div>
-
-        <nav>
-            <ul>
-                <li><a href="#" class="nav-link active" data-page="accueil">Accueil</a></li>
-                <li><a href="#" class="nav-link" data-page="materiels">Matériels</a></li>
-                <li><a href="#" class="nav-link" data-page="rth">RTH</a></li>
-                <li><a href="#" class="nav-link" data-page="photos">Photos</a></li>
-                <li><a href="#" class="nav-link" data-page="liens">Liens utiles</a></li>
-            </ul>
-        </nav>
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <h1>🎂 Escape Game Anniversaire</h1>
+        <span class="pill" id="stepPill">Étape 1 / 4</span>
+      </div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <p class="muted">
+        Réponds aux énigmes pour débloquer la surprise finale.  
+        (Le jeu ignore accents/majuscules et tolère plusieurs formats de date.)
+      </p>
+      <div class="row">
+        <button class="secondary" id="resetBtn">Recommencer</button>
+        <button class="secondary" id="homeBtn">📲 Mode “appli”</button>
+      </div>
     </div>
 
-    <div class="header-right">
-        <div id="dateTime"></div>
-        <button id="themeToggle" class="btn icon-btn">🌓</button>
-        <button id="loginBtn" class="btn">Connexion</button>
-        <button id="logoutBtn" class="btn secondary" style="display:none;">Déconnexion</button>
+    <div class="card" id="gameCard">
+      <h2 id="qTitle">Énigme</h2>
+      <p class="muted" id="qText"></p>
+
+      <div class="row" style="margin-top:10px;">
+        <input id="answer" placeholder="Ta réponse…" autocomplete="off" autocapitalize="none" />
+        <button id="validateBtn">Valider</button>
+      </div>
+
+      <div class="row" style="margin-top:10px; justify-content:space-between;">
+        <button class="secondary" id="hintBtn">Indice</button>
+        <span id="feedback" class="muted"></span>
+      </div>
+
+      <div class="card" id="hintBox" style="display:none; margin-top:12px;">
+        <div class="muted" id="hintText"></div>
+      </div>
     </div>
-</header>
 
-<main>
-
-<!-- ACCUEIL -->
-<section id="accueil" class="page active">
-    <h2>Accueil</h2>
-
-    <div class="grid-2">
-        <div class="card">
-            <h3>Message d’accueil</h3>
-            <p id="accueilText" contenteditable="false">
-                Bienvenue sur l’espace local de la Division SIC.
-            </p>
-        </div>
-
-        <div class="card">
-            <h3>Image d’accueil</h3>
-            <img id="accueilImage" class="accueil-image">
-            <div>
-                <button id="uploadBtn" class="btn" style="display:none;">Changer l’image</button>
-                <button id="deleteImgBtn" class="btn danger" style="display:none;">Supprimer</button>
-                <input type="file" id="imageUpload" accept="image/*" hidden>
-            </div>
-        </div>
+    <div class="card" id="finalCard" style="display:none;">
+      <h2>🎁 Surprise !</h2>
+      <p class="muted">Scanne ce QR code pour accéder à la vidéo.</p>
+      <div id="qr"></div>
+      <p class="muted" style="text-align:center;">
+        (Si besoin : <br />
+        <a id="videoLink" href="#" target="_blank" rel="noopener">ouvrir la vidéo</a>)
+      </p>
     </div>
-</section>
 
-<!-- MATÉRIELS -->
-<section id="materiels" class="page">
-    <h2>Matériels</h2>
+  </div>
 
-    <div class="docs-columns">
+  <!-- QR via service public simple -->
+  <script>
+    function makeQR(text, size){
+      const url = "https://api.qrserver.com/v1/create-qr-code/?size=" + size + "x" + size + "&data=" + encodeURIComponent(text);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = url;
+      img.alt = "QR Code";
+      img.style.width = size + "px";
+      img.style.height = size + "px";
+      const wrap = document.createElement("div");
+      wrap.style.display="inline-block";
+      wrap.style.background="white";
+      wrap.style.padding="10px";
+      wrap.style.borderRadius="14px";
+      wrap.style.border="1px solid rgba(255,255,255,.12)";
+      wrap.appendChild(img);
+      return wrap;
+    }
+  </script>
 
-        <!-- VÉHICULES -->
-        <div class="docs-colums">
-            <h3>Véhicules</h3>
-            <div class="grid-cards">
-                <div class="doc-card" data-name="SHERPA">SHERPA</div>
-                <div class="doc-card" data-name="CCPTA">CCPTA</div>
-                <div class="doc-card" data-name="KERAX 8x4">KERAX 8x4</div>
-                <div class="doc-card" data-name="KERAX 6x6">KERAX 6x6</div>
-                <div class="doc-card" data-name="K500 GM200-GIRAFFE">K500 GM200-GIRAFFE</div>
-            </div>
-        </div>
+  <script>
+    // ✅ COLLE ICI TON LIEN VIDÉO (YouTube non répertoriée, Drive, etc.)
+    const VIDEO_URL = "https://www.youtube.com/watch?v=l04BpnlteSY&list=RDl04BpnlteSY&start_radio=1";
 
-        <!-- GE -->
-        <div class="docs-colums">
-            <h3>GE</h3>
-            <div class="grid-cards">
-                <div class="doc-card" data-name="GE 45kW AG">GE 45kW AG</div>
-                <div class="doc-card" data-name="GE 45kW NG">GE 45kW NG</div>
-                <div class="doc-card" data-name="GE 20kW">GE 20kW</div>
-                <div class="doc-card" data-name="GE 30kW SDMO">GE 30kW SDMO</div>
-                <div class="doc-card" data-name="GE 15kW GROEL">GE 15kW GROEL</div>
-                <div class="doc-card" data-name="GE HDTAC">GE HDTAC</div>
-                <div class="doc-card" data-name="GE DIVERS">GE DIVERS</div>
-            </div>
-        </div>
+    // Normalisation tolérante
+    const norm = (s) => (s || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")       // retire accents
+      .replace(/[.,;:!?]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
-        <!-- REMORQUES -->
-        <div class="docs-colums">
-            <h3>Remorques</h3>
-            <div class="grid-cards">
-                <div class="doc-card" data-name="Remorque ACTM">Remorque ACTM</div>
-                <div class="doc-card" data-name="Rocher 1000L">Rocher 1000L</div>
-            </div>
-        </div>
+    // Normalisation spéciale "date" (tolère 30/06/2025, 30-6-2025, "30 juin 2025", etc.)
+    function normDateInput(s){
+      let t = norm(s);
 
-    </div>
-</section>
+      // Remplace séparateurs variés par "/"
+      t = t.replace(/[-.]/g, "/");
+      t = t.replace(/\s*\/\s*/g, "/");
 
-<section id="materielDetail" class="page">
-    
+      // Mois en lettres -> numéro
+      const months = {
+        "janvier":"01","janv":"01",
+        "fevrier":"02","fev":"02",
+        "mars":"03",
+        "avril":"04",
+        "mai":"05",
+        "juin":"06",
+        "juillet":"07",
+        "aout":"08",
+        "septembre":"09","sept":"09",
+        "octobre":"10","oct":"10",
+        "novembre":"11","nov":"11",
+        "decembre":"12","dec":"12"
+      };
 
- <button id="backToMateriels" class="btn">⬅ Retour</button>
+      // Cas: "30 juin 2025"
+      const parts = t.split(" ");
+      if (parts.length >= 3) {
+        const d = parts[0];
+        const m = parts[1];
+        const y = parts[2];
+        if (months[m] && /^\d{1,2}$/.test(d) && /^\d{4}$/.test(y)) {
+          const dd = String(d).padStart(2,"0");
+          return `${dd}/${months[m]}/${y}`;
+        }
+      }
 
+      // Cas: "29/2/2028" -> pad
+      const m1 = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (m1) {
+        const dd = String(m1[1]).padStart(2,"0");
+        const mm = String(m1[2]).padStart(2,"0");
+        const yy = m1[3];
+        return `${dd}/${mm}/${yy}`;
+      }
 
-	<h2 id="detailTitle"></h2>
+      // Cas: "29 fevrier 2028" (sans "le")
+      if (parts.length >= 3 && /^\d{1,2}$/.test(parts[0]) && months[parts[1]] && /^\d{4}$/.test(parts[2])) {
+        const dd = String(parts[0]).padStart(2,"0");
+        const mm = months[parts[1]];
+        const yy = parts[2];
+        return `${dd}/${mm}/${yy}`;
+      }
 
-    <div class="grid-cards">
-        <a class="doc-card sublink" id="ftLink" target="_blank">FT</a>
-        <a class="doc-card sublink" id="cmdLink" target="_blank">Commandes</a>
-        <a class="doc-card sublink" id="docLink" target="_blank">Documentations</a>
-    </div>
-</section>
+      // Sinon: renvoie normalisé simple
+      return t;
+    }
 
+    // Vérif date flexible: compare sur plusieurs représentations possibles
+    function dateMatches(userInput, acceptedDateDDMMYYYY){
+      const u = normDateInput(userInput);
 
+      // normalise la date acceptée en dd/mm/yyyy
+      const a = acceptedDateDDMMYYYY;
 
-<!-- RTH -->
-<section id="rth" class="page">
-    <h2>RTH</h2>
-    <table class="rth-table">
-        <thead>
-            <tr><th>Date</th><th>Matériel</th><th>Lieu</th><th>Observation</th></tr>
-        </thead>
-        <tbody id="rthBody"></tbody>
-    </table>
-    <button id="addRth" class="btn" style="display:none;">Ajouter</button>
-</section>
+      // On accepte:
+      // - dd/mm/yyyy
+      // - d/m/yyyy
+      // - dd-mm-yyyy (déjà converti)
+      // - "dd mois yyyy" (converti)
+      // - et une version sans zéros
+      const [dd, mm, yy] = a.split("/");
+      const noZero = `${Number(dd)}/${Number(mm)}/${yy}`; // ex: 30/6/2025
 
-<!-- PHOTOS -->
-<section id="photos" class="page">
-    <h2>Photos</h2>
-    <button id="addPhoto" class="btn" style="display:none;">Ajouter une photo</button>
-    <input type="file" id="photoInput" accept="image/*" hidden>
-    <div id="photoGrid" class="photos-grid"></div>
-</section>
+      return (u === a) || (u === noZero);
+    }
 
-<!-- LIENS UTILES -->
-<section id="liens" class="page">
-    <h2>Liens utiles</h2>
-    <button id="addLink" class="btn" style="display:none;">Ajouter un lien</button>
-    <ul id="linksList"></ul>
-</section>
+    // Étapes (tes questions)
+    const STEPS = [
+      {
+        title: "1) Notre rencontre",
+        question: "Quelle est notre date de rencontre ?",
+        type: "date",
+        accepted: "30/06/2025",
+        hint: "Jour + mois + année. Exemple : 30/06/2025 ou 30 juin 2025."
+      },
+      {
+        title: "2) Anniversaire bissextile",
+        question: "Si ton anniversaire avait été un 29 février, en quelle année l’aurait-on fêté ?",
+        type: "date",
+        accepted: "29/02/2028",
+        hint: "Pense aux années bissextiles 😉 (réponds avec une date ou juste l’année)."
+      },
+      {
+        title: "3) Le tatouage",
+        question: "Quel est le nom de mon tatouage le plus récent ? (prémices de l’aéronautique)",
+        type: "text",
+        answers: ["icare", "i care", "i-care"],
+        hint: "Le mythe grec lié au soleil et aux ailes."
+      },
+      {
+        title: "4) Premier vol",
+        question: "Dernière question : quelle est la date de ton premier vol en avion ?",
+        type: "date",
+        accepted: "28/09/2025",
+        hint: "Même format que la question 1."
+      }
+    ];
 
-</main>
+    // Pour l'étape 2, tu veux accepter "2028" aussi
+    const EXTRA_ACCEPT_STEP2 = ["2028"];
 
-<!-- MODALE LOGIN -->
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span id="closeLogin" class="close">&times;</span>
-        <h3>Connexion</h3>
-        <input type="password" id="passwordInput" placeholder="Mot de passe">
-        <button id="validateLogin" class="btn">Valider</button>
-        <p id="loginError" class="error"></p>
-    </div>
-</div>
+    // --- DOM helpers
+    const $ = (id) => document.getElementById(id);
+    let step = 0;
 
-<div id="toastContainer"></div>
+    function save(){ localStorage.setItem("escape_step", String(step)); }
+    function load(){
+      const v = Number(localStorage.getItem("escape_step") || "0");
+      if (!Number.isNaN(v)) step = Math.max(0, Math.min(v, STEPS.length));
+    }
 
+    function setProgress(){
+      const total = STEPS.length;
+      const current = Math.min(step + 1, total);
+      $("stepPill").textContent = step < total ? `Étape ${current} / ${total}` : `Terminé`;
+      $("bar").style.width = ((Math.min(step, total) / total) * 100) + "%";
+    }
+
+    function render(){
+      const total = STEPS.length;
+      setProgress();
+
+      $("feedback").textContent = "";
+      $("feedback").className = "muted";
+      $("hintBox").style.display = "none";
+      $("answer").value = "";
+
+      if (step >= total){
+        $("gameCard").style.display = "none";
+        $("finalCard").style.display = "block";
+
+        $("videoLink").href = VIDEO_URL;
+        $("videoLink").textContent = VIDEO_URL;
+
+        const qr = makeQR(VIDEO_URL, 220);
+        const qrWrap = $("qr");
+        qrWrap.innerHTML = "";
+        qrWrap.appendChild(qr);
+
+        $("bar").style.width = "100%";
+        $("stepPill").textContent = "Surprise 🎁";
+        return;
+      }
+
+      $("gameCard").style.display = "block";
+      $("finalCard").style.display = "none";
+
+      const s = STEPS[step];
+      $("qTitle").textContent = s.title;
+      $("qText").textContent = s.question;
+      $("hintText").textContent = "💡 " + s.hint;
+    }
+
+    function validate(){
+      const userRaw = $("answer").value;
+
+      if (!userRaw.trim()){
+        $("feedback").textContent = "Écris une réponse 🙂";
+        $("feedback").className = "muted bad";
+        return;
+      }
+
+      const s = STEPS[step];
+      let ok = false;
+
+      if (s.type === "date"){
+        // Etape 2 : accepte aussi "2028"
+        if (step === 1) {
+          const u = norm(userRaw);
+          if (EXTRA_ACCEPT_STEP2.includes(u)) ok = true;
+        }
+        if (!ok) ok = dateMatches(userRaw, s.accepted);
+      } else {
+        const u = norm(userRaw);
+        ok = s.answers.map(norm).includes(u);
+      }
+
+      if (ok){
+        $("feedback").textContent = "✅ Bien joué !";
+        $("feedback").className = "muted ok";
+        step++; save();
+        setTimeout(render, 450);
+      } else {
+        $("feedback").textContent = "❌ Pas encore… réessaie.";
+        $("feedback").className = "muted bad";
+      }
+    }
+
+    // Events
+    $("validateBtn").addEventListener("click", validate);
+    $("answer").addEventListener("keydown", (e)=>{ if(e.key==="Enter") validate(); });
+
+    $("hintBtn").addEventListener("click", ()=>{
+      const box = $("hintBox");
+      box.style.display = (box.style.display === "none") ? "block" : "none";
+    });
+
+    $("resetBtn").addEventListener("click", ()=>{
+      step = 0; save(); render();
+    });
+
+    $("homeBtn").addEventListener("click", ()=>{
+      alert("Sur iPhone : Safari → Partager (carré + flèche) → 'Sur l’écran d’accueil'.\nTu auras un mode plein écran comme une appli.");
+    });
+
+    load();
+    render();
+  </script>
 </body>
 </html>
